@@ -1,0 +1,36 @@
+# Use the latest 2.1 version of CircleCI pipeline process engine.
+# See: https://circleci.com/docs/2.0/configuration-reference
+version: 2.1
+
+# Define a job to be invoked later in a workflow.
+# See: https://circleci.com/docs/2.0/configuration-reference/#jobs
+orbs:
+  go: circleci/go@1.7.1
+
+jobs:
+  unit-test:
+    # Specify the execution environment. You can specify an image from Dockerhub or use one of our Convenience Images from CircleCI's Developer Hub.
+    # See: https://circleci.com/docs/2.0/configuration-reference/#docker-machine-macos-windows-executor
+    machine:
+      image: ubuntu-2004:202010-01
+    resource_class: medium 
+    # Add steps to the job
+    # See: https://circleci.com/docs/2.0/configuration-reference/#steps
+    steps:
+      - checkout
+      - go/install:
+          cache: true 
+          version: 1.19.2
+      - run:
+          name: Install Mage
+          command: go install github.com/magefile/mage@300bbc868ba8f2c15b35e09df7e8804753cac00d
+      - run:
+          name: Unit test
+          command: mage test
+
+# Invoke jobs via workflows
+# See: https://circleci.com/docs/2.0/configuration-reference/#workflows
+workflows:
+  test:
+    jobs:
+      - unit-test
